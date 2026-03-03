@@ -35,6 +35,9 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
+    - name: Terraform Format
+      run: terraform fmt -check
+      
     # 4. Terraform Plan
     # 這裡我們手動傳入變數，覆蓋 tfvars 中的敏感資訊（或確保 tfvars 已正確設定）
     - name: Terraform Plan
