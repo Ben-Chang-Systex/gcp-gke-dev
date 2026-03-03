@@ -1,0 +1,46 @@
+name: 'GKE Nginx Deployment'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  id-token: write # Workload Identity 認證必備
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # 1. 認證 GCP (建議使用 Workload Identity Federation)
+    # 如果你使用 Service Account Key，請改用 google-github-actions/auth 的 credentials_json 參數
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+        service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+    # 2. 安裝 Terraform
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    # 3. Terraform Init (會自動讀取你的 backend.tf)
+    - name: Terraform Init
+      run: terraform init
+
+    # 4. Terraform Plan
+    # 這裡我們手動傳入變數，覆蓋 tfvars 中的敏感資訊（或確保 tfvars 已正確設定）
+    - name: Terraform Plan
+      run: terraform plan -input=false -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+
+    # 5. Terraform Apply (僅在推送到 main 時執行)
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
