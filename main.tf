@@ -58,7 +58,12 @@ resource "kubernetes_deployment" "nginx" {
     }
   }
 }
-
+# 新增這個 Data Source 宣告，讓 Terraform 去 GCP 撈取該 IP 的資料
+data "google_compute_address" "static_ip" {
+  name    = var.static_ip_name
+  project = var.project_id
+  region  = var.region
+}
 # 建立 LoadBalancer 服務
 resource "kubernetes_service" "nginx_service" {
   metadata {
