@@ -65,7 +65,6 @@ resource "kubernetes_service" "nginx_service" {
     name = "nginx-service"
     annotations = {
       "networking.gke.io/load-balancer-type" = "External"
-      "networking.gke.io/static-ip" = var.static_ip_name
     }
   }
   spec {
@@ -77,6 +76,8 @@ resource "kubernetes_service" "nginx_service" {
       target_port = 80
     }
     type = "LoadBalancer"
+    # 如果你只有名稱，建議透過 data "google_compute_address" 取得 IP 位址
+    load_balancer_ip = data.google_compute_address.static_ip.address
   }
 }
 
