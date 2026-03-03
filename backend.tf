@@ -1,5 +1,6 @@
 terraform {
   backend "gcs" {
-    # 這裡故意留空，不寫任何參數
+    bucket = "ben-test-terraform-state-bucket"
+    prefix = "terraform/app/state"
   }
 }
