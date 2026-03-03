@@ -17,7 +17,7 @@ data "google_client_config" "default" {}
 # 讀取現有的 GKE 叢集資訊
 data "google_container_cluster" "my_cluster" {
   name     = var.cluster_name
-  location = var.zone
+  location = var.region
   project  = var.project_id
 }
 
